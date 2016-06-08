@@ -76,6 +76,7 @@ src_prepare() {
 		usr/share/xfce4/helpers/${PN}.desktop || die
 
 	mv usr/share/doc/${PN}-stable usr/share/doc/${PF} || die
+	chmod 0755 usr/share/doc/${PF} || die
 	mv usr/share/applications/${PN}-stable.desktop usr/share/applications/${PN}.desktop || die
 
 	rm \
