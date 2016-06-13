@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -15,7 +15,7 @@ elif [[ *"${PV}" == *"_pre"* ]] ; then
 	EKEY_STATE="snap"
 else
 	SRC_URI="https://download.enlightenment.org/rel/libs/${PN}/${MY_P}.tar.xz"
-	EKEY_STATE="snap"
+	EKEY_STATE="release"
 fi
 
 inherit enlightenment pax-utils
@@ -23,7 +23,8 @@ inherit enlightenment pax-utils
 DESCRIPTION="Enlightenment Foundation Libraries all-in-one package"
 
 LICENSE="BSD-2 GPL-2 LGPL-2.1 ZLIB"
-IUSE="+bmp debug drm +eet egl fbcon +fontconfig fribidi gif gles glib gnutls gstreamer harfbuzz +ico ibus jpeg2k libressl neon oldlua opengl ssl physics pixman +png +ppm +psd pulseaudio scim sdl sound systemd tga tiff tslib v4l2 valgrind wayland webp X xim xine xpm"
+IUSE="+bmp debug drm +eet egl fbcon +fontconfig fribidi gif gles glib gnutls gstreamer harfbuzz +ico ibus jpeg2k libressl neon oldlua opengl ssl physics pixman +png +ppm +psd pulseaudio scim sdl sound systemd tga tiff tslib v4l valgrind wayland webp X xim xine xpm"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~x86-interix ~x86-solaris ~x64-solaris"
 
 REQUIRED_USE="
 	pulseaudio?	( sound )
@@ -164,6 +165,19 @@ DEPEND="
 
 S=${WORKDIR}/${MY_P}
 
+src_prepare() {
+	enlightenment_src_prepare
+
+	# Remove stupid sleep command.
+	# Also back out gnu make hack that causes regen of Makefiles.
+	# Delete var setting that causes the build to abort.
+	sed -i \
+		-e '/sleep 10/d' \
+		-e '/^#### Work around bug in automake check macro$/,/^#### Info$/d' \
+		-e '/BARF_OK=/s:=.*:=:' \
+		configure || die
+}
+
 src_configure() {
 	if use ssl && use gnutls ; then
 		einfo "You enabled both USE=ssl and USE=gnutls, but only one can be used;"
@@ -220,7 +234,7 @@ src_configure() {
 		$(use_enable tga image-loader-tga)
 		$(use_enable tiff image-loader-tiff)
 		$(use_enable tslib)
-		$(use_enable v4l2)
+		$(use_enable v4l v4l2)
 		$(use_enable valgrind)
 		$(use_enable wayland)
 		$(use_enable webp image-loader-webp)
@@ -247,14 +261,13 @@ src_configure() {
 }
 
 src_compile() {
-	# gitweb.gentoo.org/repo/gentoo.git/commit/dev-libs/efl?id=1cf76519807150b1b42c16349e856afeeee37a68
-	if host-is-pax && ! use oldlua; then
-		local target='_e_built_sources_target_elua_for_pax_'
-		echo "${target}: \$(BUILT_SOURCES)" >>src/Makefile || die
+	if host-is-pax && ! use oldlua ; then
+		# We need to build the lua code first so we can pax-mark it. #547076
+		local target='_e_built_sources_target_gogogo_'
+		printf '%s: $(BUILT_SOURCES)\n' "${target}" >> src/Makefile || die
 		emake -C src "${target}"
 		emake -C src bin/elua/elua
 		pax-mark m src/bin/elua/.libs/elua
-		sed -e "/^${target}/d" -i src/Makefile
 	fi
 	enlightenment_src_compile
 }
