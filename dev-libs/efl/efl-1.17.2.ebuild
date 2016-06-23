@@ -176,6 +176,8 @@ src_prepare() {
 		-e '/^#### Work around bug in automake check macro$/,/^#### Info$/d' \
 		-e '/BARF_OK=/s:=.*:=:' \
 		configure || die
+
+	epatch "${FILESDIR}/${P}-fix-ibus-module-events.diff"
 }
 
 src_configure() {

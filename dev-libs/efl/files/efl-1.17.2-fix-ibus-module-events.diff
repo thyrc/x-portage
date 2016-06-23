@@ -1,0 +1,191 @@
+# EFL072674dbe211: efl - ecore c+ ecore-imf - fix odd case input when faking a real event
+# https://phab.enlightenment.org/T3703
+
+# so ibus module for ecore-imf likes to send an x event back to
+# ourselves faking a key... this works unless we are looking at
+# modifiers that make make for odd combos with keysyms turned into
+# keycodes. so actualyl use the correct original keycode plus state
+# unless we are having to explicitly send a keysym from ibus core.
+
+--- src/lib/ecore_x/xlib/ecore_x_events.c.orig
++++ src/lib/ecore_x/xlib/ecore_x_events.c
+@@ -341,14 +341,15 @@
+    char *key;
+    char keyname_buffer[256];
+    char compose_buffer[256];
+-   KeySym sym;
++   KeySym sym, sym2 = 0;
+    XComposeStatus status;
+    int val;
+    int key_len, keyname_len, compose_len;
+ 
+    _ecore_x_last_event_mouse_move = 0;
+-   keyname = XKeysymToString(_ecore_x_XKeycodeToKeysym(xevent->display,
+-                                                       xevent->keycode, 0));
++   sym = _ecore_x_XKeycodeToKeysym(xevent->display, xevent->keycode, 0);
++   keyname = XKeysymToString(sym);
++
+    if (!keyname)
+      {
+         snprintf(keyname_buffer,
+@@ -358,13 +359,12 @@
+         keyname = keyname_buffer;
+      }
+ 
+-   sym = 0;
+    key = NULL;
+    compose = NULL;
+    val = XLookupString(xevent,
+                        compose_buffer,
+                        sizeof(compose_buffer),
+-                       &sym,
++                       &sym2,
+                        &status);
+    if (val > 0)
+      {
+@@ -375,6 +375,7 @@
+           ERR("Ecore_X cannot convert input key string '%s' to UTF-8. "
+               "Is Eina built with iconv support?", compose_buffer);
+         tmp = compose;
++        sym = sym2;
+      }
+ 
+    key = XKeysymToString(sym);
+--- src/modules/ecore_imf/ibus/ibus_imcontext.c.orig
++++ src/modules/ecore_imf/ibus/ibus_imcontext.c
+@@ -48,6 +48,7 @@
+ struct _KeyEvent
+ {
+    int keysym;
++   int keycode;
+    int state;
+ };
+ 
+@@ -64,6 +65,7 @@
+ static XKeyEvent _ecore_imf_ibus_x_key_event_generate(Window win,
+                                                       Eina_Bool press,
+                                                       int keysym,
++                                                      int keycode,
+                                                       int modifiers);
+ 
+ static unsigned int
+@@ -163,7 +165,7 @@
+ }
+ 
+ static void
+-_ecore_imf_ibus_key_event_put(int keysym, int state)
++_ecore_imf_ibus_key_event_put(int keysym, int keycode, int state)
+ {
+    // Find the window which has the current keyboard focus.
+    Window winFocus = 0;
+@@ -177,6 +179,7 @@
+         event = _ecore_imf_ibus_x_key_event_generate(winFocus,
+                                                      EINA_FALSE,
+                                                      keysym,
++                                                     keycode,
+                                                      state);
+         XSendEvent(event.display, event.window, True, KeyReleaseMask, (XEvent *)&event);
+      }
+@@ -185,16 +188,18 @@
+         event = _ecore_imf_ibus_x_key_event_generate(winFocus,
+                                                      EINA_TRUE,
+                                                      keysym,
++                                                     keycode,
+                                                      state);
+         XSendEvent(event.display, event.window, True, KeyPressMask, (XEvent *)&event);
+      }
+ }
+ 
+ static KeyEvent *
+-_ecore_imf_ibus_key_event_copy(int keysym, int state)
++_ecore_imf_ibus_key_event_copy(int keysym, int keycode, int state)
+ {
+    KeyEvent *kev = calloc(1, sizeof(KeyEvent));
+    kev->keysym = keysym;
++   kev->keycode = keycode;
+    kev->state = state;
+ 
+    return kev;
+@@ -221,7 +226,9 @@
+ 
+    if (retval == EINA_FALSE)
+      {
+-        _ecore_imf_ibus_key_event_put(event->keysym, event->state);
++        _ecore_imf_ibus_key_event_put(event->keysym,
++                                      event->keycode,
++                                      event->state);
+      }
+    free(event);
+ }
+@@ -394,7 +401,7 @@
+              if (ev->timestamp == 0)
+                return EINA_FALSE;
+ 
+-             keycode = ecore_x_keysym_keycode_get(ev->key);
++             keycode = ecore_x_keysym_keycode_get(ev->keyname);
+              keysym = XStringToKeysym(ev->key);
+              state = _ecore_imf_modifier_to_ibus_modifier(ev->modifiers) |
+                      _ecore_imf_locks_to_ibus_modifier(ev->locks) | IBUS_RELEASE_MASK;
+@@ -415,7 +422,7 @@
+                                                              -1,
+                                                              NULL,
+                                                              _ecore_imf_ibus_process_key_event_done,
+-                                                             _ecore_imf_ibus_key_event_copy(keysym, state));
++                                                             _ecore_imf_ibus_key_event_copy(keysym, keycode, state));
+                   retval = EINA_TRUE;
+                }
+           }
+@@ -427,7 +434,7 @@
+ 
+              _request_surrounding_text(ibusimcontext);
+ 
+-             keycode = ecore_x_keysym_keycode_get(ev->key);
++             keycode = ecore_x_keysym_keycode_get(ev->keyname);
+              keysym = XStringToKeysym(ev->key);
+              state = _ecore_imf_modifier_to_ibus_modifier(ev->modifiers) |
+                      _ecore_imf_locks_to_ibus_modifier(ev->locks);
+@@ -448,7 +455,7 @@
+                                                              -1,
+                                                              NULL,
+                                                              _ecore_imf_ibus_process_key_event_done,
+-                                                             _ecore_imf_ibus_key_event_copy(keysym, state));
++                                                             _ecore_imf_ibus_key_event_copy(keysym, keycode, state));
+                   retval = EINA_TRUE;
+                }
+           }
+@@ -716,6 +723,7 @@
+ static XKeyEvent _ecore_imf_ibus_x_key_event_generate(Window win,
+                                                       Eina_Bool press,
+                                                       int keysym,
++                                                      int keycode,
+                                                       int modifiers)
+ {
+    XKeyEvent event;
+@@ -731,8 +739,16 @@
+    event.x_root      = 1;
+    event.y_root      = 1;
+    event.same_screen = EINA_TRUE;
+-   event.state       = modifiers;
+-   event.keycode     = XKeysymToKeycode(display, keysym);
++   if (keycode == -1)
++     {
++        event.keycode     = XKeysymToKeycode(display, keysym);
++        event.state       = 0;
++     }
++   else
++     {
++        event.keycode     = keycode;
++        event.state       = modifiers;
++     }
+    if (press)
+      event.type = KeyPress;
+    else
+@@ -751,7 +767,7 @@
+ {
+    EINA_LOG_DBG("keyval : %d, state : %d", keyval, state);
+ 
+-   _ecore_imf_ibus_key_event_put(keyval, state);
++   _ecore_imf_ibus_key_event_put(keyval, -1, state);
+ }
+ 
+ static void
