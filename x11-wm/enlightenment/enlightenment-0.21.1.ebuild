@@ -53,7 +53,7 @@ RDEPEND="
 		>=x11-libs/libxkbcommon-0.3.1
 	)
 	>=dev-libs/efl-1.17.0[X]
-	>=media-libs/elementary-1.17.0
+	|| ( >=media-libs/elementary-1.17.0 >=dev-libs/efl-1.18.0 )
 	x11-libs/xcb-util-keysyms"
 DEPEND="${RDEPEND}"
 
