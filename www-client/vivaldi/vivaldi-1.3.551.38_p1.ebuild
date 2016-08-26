@@ -8,11 +8,11 @@ CHROMIUM_LANGS="
 	hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt_BR pt_PT ro ru sk sl sr sv
 	sw ta te th tr uk vi zh_CN zh_TW
 "
-inherit chromium eutils multilib unpacker toolchain-funcs
+inherit chromium eutils multilib unpacker toolchain-funcs pax-utils
 
 DESCRIPTION="A new browser for our friends"
-HOMEPAGE="http://vivaldi.com/"
-VIVALDI_BASE_URI="https://downloads.vivaldi.com/snapshot/${PN}-snapshot_${PV/_p/-}_"
+HOMEPAGE="https://vivaldi.com/"
+VIVALDI_BASE_URI="https://downloads.vivaldi.com/stable/${PN}-stable_${PV/_p/-}_"
 SRC_URI="
 	amd64? ( ${VIVALDI_BASE_URI}amd64.deb -> ${P}-amd64.deb )
 	x86? ( ${VIVALDI_BASE_URI}i386.deb -> ${P}-i386.deb )
@@ -20,7 +20,7 @@ SRC_URI="
 
 LICENSE="Vivaldi"
 SLOT="0"
-KEYWORDS="-* ~amd64 ~x86"
+KEYWORDS="-* amd64 x86"
 
 RESTRICT="bindist mirror"
 
@@ -59,7 +59,7 @@ RDEPEND="
 
 QA_PREBUILT="*"
 S=${WORKDIR}
-VIVALDI_HOME="opt/${PN}-snapshot"
+VIVALDI_HOME="opt/${PN}"
 
 src_unpack() {
 	unpack_deb ${A}
@@ -67,20 +67,27 @@ src_unpack() {
 
 src_prepare() {
 	sed -i \
-		-e 's|vivaldi-snapshot|vivaldi|g' \
-		usr/share/applications/${PN}-snapshot.desktop \
-		usr/share/xfce4/helpers/${PN}-snapshot.desktop || die
+		-e "s|@LIBDIR@|$(get_libdir)|g" \
+		${VIVALDI_HOME}/vivaldi || die
 
-	mv usr/share/doc/${PN}-snapshot usr/share/doc/${PF} || die
+	sed -i \
+		-e 's|vivaldi-stable|vivaldi|g' \
+		usr/share/applications/${PN}-stable.desktop \
+		usr/share/xfce4/helpers/${PN}.desktop || die
+
+	mv usr/share/doc/${PN}-stable usr/share/doc/${PF} || die
 	chmod 0755 usr/share/doc/${PF} || die
+	mv usr/share/applications/${PN}-stable.desktop usr/share/applications/${PN}.desktop || die
 
 	rm \
 		_gpgbuilder \
-		etc/cron.daily/${PN}-snapshot \
+		etc/cron.daily/${PN} \
+		usr/bin/${PN}-stable \
 		|| die
 	rmdir \
 		etc/cron.daily/ \
 		etc/ \
+		usr/share/doc/vivaldi \
 		|| die
 
 	local c d
@@ -95,6 +102,7 @@ src_prepare() {
 	chromium_remove_language_paks
 	popd > /dev/null || die
 
+	pax-mark m ${VIVALDI_HOME}/vivaldi-bin || die
 }
 
 src_install() {
