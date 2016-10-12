@@ -14,13 +14,13 @@ else
 	EKEY_STATE="snap"
 fi
 
-inherit enlightenment
+inherit enlightenment pax-utils
 
-DESCRIPTION="Enlightenment DR17 window manager"
+DESCRIPTION="Enlightenment DR20 window manager"
 
 LICENSE="BSD-2"
 KEYWORDS="~amd64 ~arm ~x86"
-SLOT="0.17/${PV%%_*}"
+SLOT="0.21/${PV%%_*}"
 
 # The @ is just an anchor to expand from
 __EVRY_MODS=""
@@ -35,24 +35,25 @@ __NORM_MODS="
 	+@fileman-opinfo +@gadman +@ibar +@ibox +@mixer +@msgbus
 	+@music-control +@notification +@pager +@quickaccess +@shot
 	+@start +@syscon +@systray +@tasks +@teamwork +@temperature +@tiling
-	+@winlist +@wizard @wl-desktop-shell +@xkbswitch"
+	+@winlist +@wizard @wl-desktop-shell @wl_weekeyboard +@xkbswitch"
 IUSE_E_MODULES="
 	${__CONF_MODS//@/enlightenment_modules_conf-}
 	${__NORM_MODS//@/enlightenment_modules_}"
 
-IUSE="pam spell static-libs systemd +udev ukit wayland ${IUSE_E_MODULES}"
+IUSE="pam pax_kernel spell static-libs systemd +udev ukit wayland ${IUSE_E_MODULES}"
 
 RDEPEND="
 	pam? ( sys-libs/pam )
 	systemd? ( sys-apps/systemd )
 	wayland? (
 		dev-libs/efl[wayland]
-		>=dev-libs/wayland-1.2.0
+		>=dev-libs/wayland-1.10.0
+		>=dev-libs/wayland-protocols-1.3
 		>=x11-libs/pixman-0.31.1
 		>=x11-libs/libxkbcommon-0.3.1
 	)
-	>=dev-libs/efl-${PV}[X]
-	>=media-libs/elementary-${PV}
+	>=dev-libs/efl-1.17.0[X]
+	|| ( >=media-libs/elementary-1.17.0 >=dev-libs/efl-1.18.0 )
 	x11-libs/xcb-util-keysyms"
 DEPEND="${RDEPEND}"
 
@@ -67,14 +68,13 @@ src_configure() {
 	E_ECONF=(
 		--disable-install-sysactions
 		$(use_enable doc)
-		--disable-device-hal
 		$(use_enable nls)
 		$(use_enable pam)
 		$(use_enable systemd)
 		--enable-device-udev
 		$(use_enable udev mount-eeze)
 		$(use_enable ukit mount-udisks)
-		$(use_enable wayland wayland-clients)
+		$(use_enable wayland wayland)
 	)
 	local u c
 	for u in ${IUSE_E_MODULES} ; do
@@ -87,6 +87,10 @@ src_configure() {
 
 src_install() {
 	enlightenment_src_install
+	if use pax_kernel; then
+		pax-mark m "${D}"/usr/bin/enlightenment || die "pax-mark failed"
+		pax-mark m "${D}"/usr/bin/enlightenment_filemanager || die "pax-mark failed"
+	fi
 	insinto /etc/enlightenment
 	newins "${FILESDIR}"/gentoo-sysactions.conf sysactions.conf
 }
