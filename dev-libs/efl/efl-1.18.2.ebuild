@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -15,15 +15,16 @@ elif [[ *"${PV}" == *"_pre"* ]] ; then
 	EKEY_STATE="snap"
 else
 	SRC_URI="https://download.enlightenment.org/rel/libs/${PN}/${MY_P}.tar.xz"
-	EKEY_STATE="snap"
+	EKEY_STATE="release"
 fi
 
-inherit enlightenment
+inherit enlightenment pax-utils
 
 DESCRIPTION="Enlightenment Foundation Libraries all-in-one package"
 
 LICENSE="BSD-2 GPL-2 LGPL-2.1 ZLIB"
-IUSE="+bmp debug drm +eet egl fbcon +fontconfig fribidi gif gles glib gnutls gstreamer harfbuzz +ico ibus jpeg2k libressl neon oldlua opengl ssl physics pixman +png +ppm +psd pulseaudio scim sdl sound systemd tga tiff tslib v4l2 valgrind wayland webp X xim xine xpm"
+IUSE="+bmp debug drm +eet egl elput fbcon +fontconfig fribidi gif gles glib gnutls gstreamer harfbuzz +ico ibus jpeg2k libressl lz4 neon oldlua opengl ssl physics pixman +png +ppm +psd pulseaudio raw scim sdl sound spectre systemd tga tiff tslib v4l valgrind vlc wayland webp X xim xine xpm"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~x86-interix ~x86-solaris ~x64-solaris"
 
 REQUIRED_USE="
 	pulseaudio?	( sound )
@@ -35,6 +36,7 @@ REQUIRED_USE="
 	sdl?		( opengl )
 	wayland?	( egl !opengl gles )
 	xim?		( X )
+	drm?		( elput )
 "
 
 RDEPEND="
@@ -62,22 +64,26 @@ RDEPEND="
 	harfbuzz? ( media-libs/harfbuzz )
 	ibus? ( app-i18n/ibus )
 	jpeg2k? ( media-libs/openjpeg:0 )
+	lz4? ( app-arch/lz4 )
 	!oldlua? ( >=dev-lang/luajit-2.0.0 )
 	oldlua? ( dev-lang/lua )
 	physics? ( >=sci-physics/bullet-2.80 )
 	pixman? ( x11-libs/pixman )
 	png? ( media-libs/libpng:0= )
 	pulseaudio? ( media-sound/pulseaudio )
+	raw? ( media-libs/libraw )
 	scim? ( app-i18n/scim )
 	sdl? (
 		media-libs/libsdl2
 		virtual/opengl
 	)
 	sound? ( media-libs/libsndfile )
+	spectre? ( app-text/libspectre )
 	systemd? ( sys-apps/systemd )
 	tiff? ( media-libs/tiff:0 )
 	tslib? ( x11-libs/tslib )
 	valgrind? ( dev-util/valgrind )
+	vlc? ( media-video/vlc )
 	wayland? (
 		>=dev-libs/wayland-1.8.0
 		>=x11-libs/libxkbcommon-0.3.1
@@ -132,9 +138,10 @@ RDEPEND="
 	!media-libs/emotion
 	!media-libs/ethumb
 	!media-libs/evas
+	!media-libs/elementary
+	!media-plugins/emotion_generic_players
+	!media-plugins/evas_generic_loaders
 "
-#external lz4 support currently broken because of unstable ABI/API
-#	app-arch/lz4
 
 #soft blockers added above for binpkg users
 #hard blocks are needed for building
@@ -164,6 +171,15 @@ DEPEND="
 
 S=${WORKDIR}/${MY_P}
 
+src_prepare() {
+	enlightenment_src_prepare
+
+	# Remove stupid sleep command.
+	sed -i \
+		-e '/sleep 10/d' \
+		configure || die
+}
+
 src_configure() {
 	if use ssl && use gnutls ; then
 		einfo "You enabled both USE=ssl and USE=gnutls, but only one can be used;"
@@ -181,7 +197,7 @@ src_configure() {
 		$(use_with X x)
 		--with-opengl=$(usex opengl full $(usex gles es none))
 		--with-glib=$(usex glib)
-		--enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-aba
+		--enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-abb
 
 		$(use_enable bmp image-loader-bmp)
 		$(use_enable bmp image-loader-wbmp)
@@ -189,6 +205,7 @@ src_configure() {
 		$(use_enable doc)
 		$(use_enable eet image-loader-eet)
 		$(use_enable egl)
+		$(use_enable elput)
 		$(use_enable fbcon fb)
 		$(use_enable fontconfig)
 		$(use_enable fribidi)
@@ -198,6 +215,7 @@ src_configure() {
 		$(use_enable ico image-loader-ico)
 		$(use_enable ibus)
 		$(use_enable jpeg2k image-loader-jp2k)
+		$(use_enable lz4 liblz4)
 		$(use_enable neon)
 		$(use_enable nls)
 		$(use_enable oldlua lua-old)
@@ -213,15 +231,18 @@ src_configure() {
 		$(use_enable ppm image-loader-pmaps)
 		$(use_enable psd image-loader-psd)
 		$(use_enable pulseaudio)
+		$(use_enable raw libraw)
 		$(use_enable scim)
 		$(use_enable sdl)
 		$(use_enable sound audio)
+		$(use_enable spectre)
 		$(use_enable systemd)
 		$(use_enable tga image-loader-tga)
 		$(use_enable tiff image-loader-tiff)
 		$(use_enable tslib)
-		$(use_enable v4l2)
+		$(use_enable v4l v4l2)
 		$(use_enable valgrind)
+		$(use_enable vlc libvlc)
 		$(use_enable wayland)
 		$(use_enable webp image-loader-webp)
 		$(use_enable xim)
@@ -235,15 +256,24 @@ src_configure() {
 		--disable-gesture
 		--disable-gstreamer
 		--enable-xinput2
-		--disable-xinput22
-		--disable-multisense
+		--enable-xinput22
+		--enable-multisense
 		--enable-libmount
-
-		# external lz4 support currently broken because of unstable ABI/API
-		#--enable-liblz4
 	)
 
 	enlightenment_src_configure
+}
+
+src_compile() {
+	if host-is-pax && ! use oldlua ; then
+		# We need to build the lua code first so we can pax-mark it. #547076
+		local target='_e_built_sources_target_gogogo_'
+		printf '%s: $(BUILT_SOURCES)\n' "${target}" >> src/Makefile || die
+		emake -C src "${target}"
+		emake -C src bin/elua/elua
+		pax-mark m src/bin/elua/.libs/elua
+	fi
+	enlightenment_src_compile
 }
 
 src_install() {
