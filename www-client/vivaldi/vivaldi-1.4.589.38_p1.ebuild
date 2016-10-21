@@ -101,7 +101,6 @@ src_prepare() {
 	popd > /dev/null || die
 
 	pax-mark m ${VIVALDI_HOME}/vivaldi-bin || die
-	paxctl -cm ${VIVALDI_HOME}/vivaldi-bin || die
 }
 
 src_install() {
