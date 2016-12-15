@@ -4,15 +4,20 @@
 
 EAPI=5
 CHROMIUM_LANGS="
-	am ar bg bn ca cs da de el en_GB en_US es_419 es et fa fil fi fr gu he hi
-	hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt_BR pt_PT ro ru sk sl sr sv
-	sw ta te th tr uk vi zh_CN zh_TW
+	am ar bg bn ca cs da de el en-GB en-US es es-419 et fa fi fil fr gu he hi
+	hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr sv
+	sw ta te th tr uk vi zh-CN zh-TW
 "
-inherit chromium eutils multilib unpacker toolchain-funcs pax-utils
+inherit chromium-2 eutils multilib unpacker toolchain-funcs pax-utils
 
+#VIVALDI_BRANCH="snapshot"
+
+VIVALDI_PN="${PN}-${VIVALDI_BRANCH:-stable}"
+VIVALDI_BIN="${PN}${VIVALDI_BRANCH/snapshot/-snapshot}"
+VIVALDI_HOME="opt/${VIVALDI_BIN}"
 DESCRIPTION="A new browser for our friends"
 HOMEPAGE="https://vivaldi.com/"
-VIVALDI_BASE_URI="https://downloads.vivaldi.com/stable/${PN}-stable_${PV/_p/-}_"
+VIVALDI_BASE_URI="https://downloads.vivaldi.com/${VIVALDI_BRANCH:-stable}/${VIVALDI_PN}_${PV/_p/-}_"
 SRC_URI="
 	amd64? ( ${VIVALDI_BASE_URI}amd64.deb -> ${P}-amd64.deb )
 	x86? ( ${VIVALDI_BASE_URI}i386.deb -> ${P}-i386.deb )
@@ -59,7 +64,6 @@ RDEPEND="
 
 QA_PREBUILT="*"
 S=${WORKDIR}
-VIVALDI_HOME="opt/${PN}"
 
 src_unpack() {
 	unpack_deb ${A}
@@ -67,21 +71,17 @@ src_unpack() {
 
 src_prepare() {
 	sed -i \
-		-e "s|@LIBDIR@|$(get_libdir)|g" \
-		${VIVALDI_HOME}/vivaldi || die
+		-e "s|${VIVALDI_BIN}|${PN}|g" \
+		usr/share/applications/${VIVALDI_PN}.desktop \
+		usr/share/xfce4/helpers/${VIVALDI_BIN}.desktop || die
 
-	sed -i \
-		-e 's|vivaldi-stable|vivaldi|g' \
-		usr/share/applications/${PN}-stable.desktop \
-		usr/share/xfce4/helpers/${PN}.desktop || die
-
-	mv usr/share/doc/${PN}-stable usr/share/doc/${PF} || die
+	mv usr/share/doc/${VIVALDI_PN} usr/share/doc/${PF} || die
 	chmod 0755 usr/share/doc/${PF} || die
-	mv usr/share/applications/${PN}-stable.desktop usr/share/applications/${PN}.desktop || die
 
 	rm \
 		_gpgbuilder \
-		etc/cron.daily/${PN} \
+		etc/cron.daily/${VIVALDI_BIN} \
+		${VIVALDI_HOME}/libwidevinecdm.so \
 		|| die
 	rmdir \
 		etc/cron.daily/ \
