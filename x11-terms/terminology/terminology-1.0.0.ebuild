@@ -14,6 +14,6 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND=">=dev-libs/efl-1.13.1
-	>=media-libs/elementary-1.13.1"
+	|| ( >=media-libs/elementary-1.13.1 >=dev-libs/efl-1.18.0 )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
