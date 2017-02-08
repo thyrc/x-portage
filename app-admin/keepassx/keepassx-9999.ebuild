@@ -17,10 +17,13 @@ KEYWORDS="~amd64 ~arm ~ppc ~x86 ~amd64-linux ~x86-linux"
 IUSE="test"
 
 DEPEND="
-	dev-libs/libgcrypt:0=
+	dev-libs/libgcrypt:0
+	dev-qt/linguist-tools
+	dev-qt/qtconcurrent
 	dev-qt/qtcore
 	dev-qt/qtgui
 	dev-qt/qttest
+	dev-qt/qtwidgets
 	dev-qt/qtx11extras
 	sys-libs/zlib
 	x11-libs/libX11
