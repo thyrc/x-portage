@@ -14,7 +14,7 @@ else
 	EKEY_STATE="snap"
 fi
 
-inherit enlightenment pax-utils
+inherit enlightenment
 
 DESCRIPTION="Enlightenment DR20 window manager"
 
@@ -40,7 +40,7 @@ IUSE_E_MODULES="
 	${__CONF_MODS//@/enlightenment_modules_conf-}
 	${__NORM_MODS//@/enlightenment_modules_}"
 
-IUSE="pam pax_kernel spell static-libs systemd +udev ukit wayland ${IUSE_E_MODULES}"
+IUSE="pam spell static-libs systemd +udev ukit wayland ${IUSE_E_MODULES}"
 
 RDEPEND="
 	pam? ( sys-libs/pam )
@@ -87,10 +87,6 @@ src_configure() {
 
 src_install() {
 	enlightenment_src_install
-	if use pax_kernel; then
-		pax-mark m "${D}"/usr/bin/enlightenment || die "pax-mark failed"
-		pax-mark m "${D}"/usr/bin/enlightenment_filemanager || die "pax-mark failed"
-	fi
 	insinto /etc/enlightenment
 	newins "${FILESDIR}"/gentoo-sysactions.conf sysactions.conf
 }
