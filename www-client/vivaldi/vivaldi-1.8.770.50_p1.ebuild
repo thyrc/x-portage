@@ -1,6 +1,5 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=5
 CHROMIUM_LANGS="
@@ -31,6 +30,9 @@ RESTRICT="bindist mirror"
 
 S=${WORKDIR}
 
+DEPEND="
+	virtual/libiconv
+"
 RDEPEND="
 	dev-libs/expat
 	dev-libs/glib:2
