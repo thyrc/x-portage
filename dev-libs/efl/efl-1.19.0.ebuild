@@ -119,6 +119,7 @@ RDEPEND="
 	xine? ( >=media-libs/xine-lib-1.1.1 )
 	xpm? ( x11-libs/libXpm )
 
+	app-text/poppler
 	sys-apps/dbus
 	>=sys-apps/util-linux-2.20.0
 	sys-libs/zlib
