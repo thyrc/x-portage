@@ -5,7 +5,7 @@
 EAPI=5
 
 MODULE_AUTHOR=YANICK
-MODULE_VERSION=1.18
+MODULE_VERSION=1.19
 inherit perl-module
 
 DESCRIPTION="A simple parallel processing fork manager"
