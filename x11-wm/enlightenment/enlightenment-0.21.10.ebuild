@@ -16,7 +16,7 @@ fi
 
 inherit enlightenment
 
-DESCRIPTION="Enlightenment DR20 window manager"
+DESCRIPTION="Enlightenment DR21 window manager"
 
 LICENSE="BSD-2"
 KEYWORDS="~amd64 ~arm ~x86"
@@ -25,17 +25,20 @@ SLOT="0.21/${PV%%_*}"
 # The @ is just an anchor to expand from
 __EVRY_MODS=""
 __CONF_MODS="
-	+@applications +@dialogs +@display
+	+@applications +@bindings +@dialogs +@display
 	+@interaction +@intl +@menus
 	+@paths +@performance +@randr +@shelves +@theme
 	+@window-manipulation +@window-remembers"
 __NORM_MODS="
-	+@appmenu +@backlight +@bluez4 +@battery +@clock
-	+@connman +@cpufreq +@everything +@fileman
-	+@fileman-opinfo +@gadman +@ibar +@ibox +@mixer +@msgbus
-	+@music-control +@notification +@pager +@quickaccess +@shot
-	+@start +@syscon +@systray +@tasks +@teamwork +@temperature +@tiling
-	+@winlist +@wizard @wl-desktop-shell @wl_weekeyboard +@xkbswitch"
+	+@appmenu +@backlight +@bluez4 +@battery
+	+@clock +@conf +@connman +@cpufreq +@everything
+	+@fileman +@fileman-opinfo +@gadman +@geolocation
+	+@ibar +@ibox +@lokker
+	+@mixer +@msgbus +@music-control +@notification
+	+@pager +@packagekit +@pager-plain +@policy-mobile +@quickaccess
+	+@shot +@start +@syscon +@systray +@tasks +@teamwork +@temperature +@tiling +@time
+	+@winlist +@wireless +@wizard @wl-desktop-shell @wl-drm @wl-text-input
+	@wl_weekeyboard @wl-wl @wl-x11 +@xkbswitch @xwayland"
 IUSE_E_MODULES="
 	${__CONF_MODS//@/enlightenment_modules_conf-}
 	${__NORM_MODS//@/enlightenment_modules_}"
@@ -52,8 +55,7 @@ RDEPEND="
 		>=x11-libs/pixman-0.31.1
 		>=x11-libs/libxkbcommon-0.3.1
 	)
-	>=dev-libs/efl-1.17.0[X]
-	|| ( >=media-libs/elementary-1.17.0 >=dev-libs/efl-1.18.0 )
+	>=dev-libs/efl-1.18[X]
 	x11-libs/xcb-util-keysyms"
 DEPEND="${RDEPEND}"
 
@@ -74,7 +76,7 @@ src_configure() {
 		--enable-device-udev
 		$(use_enable udev mount-eeze)
 		$(use_enable ukit mount-udisks)
-		$(use_enable wayland wayland)
+		$(use_enable wayland)
 	)
 	local u c
 	for u in ${IUSE_E_MODULES} ; do
