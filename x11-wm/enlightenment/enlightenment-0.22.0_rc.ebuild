@@ -33,12 +33,13 @@ __NORM_MODS="
 	+@appmenu +@backlight +@bluez4 +@battery
 	+@clock +@conf +@connman +@cpufreq +@everything
 	+@fileman +@fileman-opinfo +@gadman +@geolocation
-	+@ibar +@ibox +@lokker
-	+@mixer +@msgbus +@music-control +@notification
-	+@pager +@packagekit +@pager-plain +@policy-mobile +@quickaccess
-	+@shot +@start +@syscon +@systray +@tasks +@teamwork +@temperature +@tiling +@time
-	+@winlist +@wireless +@wizard @wl-desktop-shell @wl-drm @wl-text-input
-	@wl_weekeyboard @wl-wl @wl-x11 +@xkbswitch @xwayland"
+	+@ibar +@ibox +@lokker +@mixer +@msgbus +@music-control
+	+@notification +@packagekit +@pager +@pager-plain
+	+@quickaccess +@shot +@start +@syscon
+	+@sysinfo +@systray +@tasks +@teamwork +@temperature
+	+@tiling +@time +@winlist +@wireless +@wizard
+	@wl-buffer @wl-desktop-shell @wl-drm @wl-text-input @wl_weekeyboard
+	@wl-wl @wl-x11 +@xkbswitch @xwayland"
 IUSE_E_MODULES="
 	${__CONF_MODS//@/enlightenment_modules_conf-}
 	${__NORM_MODS//@/enlightenment_modules_}"
