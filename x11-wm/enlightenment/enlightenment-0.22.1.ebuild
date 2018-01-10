@@ -64,6 +64,7 @@ S=${WORKDIR}/${MY_P}
 
 src_prepare() {
 	epatch "${FILESDIR}"/quickstart.diff
+	epatch "${FILESDIR}"/${PN}-0.22.1-no-desklock_hide-on-error.patch
 	enlightenment_src_prepare
 }
 
