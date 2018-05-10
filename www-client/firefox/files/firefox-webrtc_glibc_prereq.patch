@@ -1,0 +1,29 @@
+--- a/media/webrtc/trunk/webrtc/system_wrappers/source/cpu_features_linux.c	2018-05-03 18:58:31.000000000 +0200
++++ b/media/webrtc/trunk/webrtc/system_wrappers/source/cpu_features_linux.c.orig	2018-05-10 14:23:29.115385043 +0200
+@@ -11,7 +11,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <features.h>
+-#if __GLIBC_PREREQ(2, 16)
++#if defined(__linux__) && !(defined(__GLIBC__) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 16))
+ #include <sys/auxv.h>
+ #else
+ #include <fcntl.h>
+@@ -29,7 +29,7 @@
+   int architecture = 0;
+   unsigned long hwcap = 0;
+   const char* platform = NULL;
+-#if __GLIBC_PREREQ(2, 16)
++#if defined(__linux__) && !(defined(__GLIBC__) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 16))
+   hwcap = getauxval(AT_HWCAP);
+   platform = (const char*)getauxval(AT_PLATFORM);
+ #else
+@@ -53,7 +53,7 @@
+     }
+     close(fd);
+   }
+-#endif  // __GLIBC_PREREQ(2,16)
++#endif
+ #if defined(__aarch64__)
+   architecture = 8;
+   if ((hwcap & HWCAP_FP) != 0)

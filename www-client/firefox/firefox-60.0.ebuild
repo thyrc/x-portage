@@ -119,6 +119,12 @@ src_prepare() {
 	eapply "${WORKDIR}/firefox"
 	eapply "${FILESDIR}"/${PN}-ffmpeg4.patch
 
+	# Fix musl struct cmsghdr initialization & GLIBC_PREREQ tests
+	if use elibc_musl; then
+		eapply "${FILESDIR}"/${PN}-audioipc_musl_cmsghdr.patch
+		eapply "${FILESDIR}"/${PN}-webrtc_glibc_prereq.patch
+	fi
+
 	# Enable gnomebreakpad
 	if use debug ; then
 		sed -i -e "s:GNOME_DISABLE_CRASH_DIALOG=1:GNOME_DISABLE_CRASH_DIALOG=0:g" \
@@ -229,7 +235,7 @@ src_configure() {
 
 src_compile() {
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
-	./mach build --verbose || die
+	./mach build || die
 }
 
 src_install() {
