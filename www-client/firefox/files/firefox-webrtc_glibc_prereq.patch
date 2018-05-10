@@ -1,5 +1,5 @@
 --- a/media/webrtc/trunk/webrtc/system_wrappers/source/cpu_features_linux.c	2018-05-03 18:58:31.000000000 +0200
-+++ b/media/webrtc/trunk/webrtc/system_wrappers/source/cpu_features_linux.c.orig	2018-05-10 14:23:29.115385043 +0200
++++ b/media/webrtc/trunk/webrtc/system_wrappers/source/cpu_features_linux.c	2018-05-10 14:23:29.115385043 +0200
 @@ -11,7 +11,7 @@
  #include <stdlib.h>
  #include <string.h>
