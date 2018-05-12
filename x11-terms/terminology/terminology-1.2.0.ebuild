@@ -2,7 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
+EAPI="6"
+
+inherit meson
 
 DESCRIPTION="Feature rich terminal emulator using the Enlightenment Foundation Libraries"
 HOMEPAGE="https://www.enlightenment.org/p.php?p=about/terminology"
@@ -17,3 +19,19 @@ RDEPEND=">=dev-libs/efl-1.13.1
 	|| ( >=media-libs/elementary-1.13.1 >=dev-libs/efl-1.18.0 )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
+
+src_configure() {
+	meson_src_configure
+}
+
+src_compile() {
+	meson_src_compile
+}
+
+src_test() {
+	meson_src_test
+}
+
+src_install() {
+	meson_src_install
+}
