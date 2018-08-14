@@ -248,7 +248,7 @@ src_install() {
 		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js"
 
 	# Add personal prefs
-	cat "${FILESDIR}"/gentoo-my-prefs.js-1 >> \
+	cat "${FILESDIR}"/my-default-prefs.js-1 >> \
 		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
 		|| die
 
