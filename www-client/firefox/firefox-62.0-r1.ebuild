@@ -1,7 +1,7 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="6"
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
@@ -34,7 +34,7 @@ inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils llvm \
 		mozcoreconf-v6 pax-utils xdg-utils autotools mozlinguas-v2
 
 DESCRIPTION="Firefox Web Browser"
-HOMEPAGE="http://www.mozilla.com/firefox"
+HOMEPAGE="https://www.mozilla.com/firefox"
 
 KEYWORDS="~amd64 ~x86"
 
@@ -120,6 +120,8 @@ DEPEND="${CDEPEND}
 	amd64? ( >=dev-lang/yasm-1.1 virtual/opengl )
 	x86? ( >=dev-lang/yasm-1.1 virtual/opengl )"
 
+REQUIRED_USE="wifi? ( dbus )"
+
 S="${WORKDIR}/firefox-${PV%_*}"
 
 QA_PRESTRIPPED="usr/lib*/${PN}/firefox"
@@ -177,6 +179,8 @@ src_unpack() {
 
 src_prepare() {
 	eapply "${WORKDIR}/firefox"
+
+	eapply "${FILESDIR}/${PN}-60.0-blessings-TERM.patch"  # 654316
 	epatch "${FILESDIR}/${PN}-61.0-hunspell_nsCOMPtr_include.patch"
 
 	# Enable gnomebreakpad
@@ -345,6 +349,17 @@ src_configure() {
 		mozconfig_annotate '-pulseaudio' --enable-alsa
 	fi
 
+	# Disable built-in ccache support to avoid sandbox violation, #665420
+	# Use FEATURES=ccache instead!
+	mozconfig_annotate '' --without-ccache
+	sed -i -e 's/ccache_stats = None/return None/' \
+		python/mozbuild/mozbuild/controller/building.py || \
+		die "Failed to disable ccache stats call"
+
+	mozconfig_use_enable dbus
+
+	mozconfig_use_enable wifi necko-wifi
+
 	# enable JACK, bug 600002
 	mozconfig_use_enable jack
 
@@ -436,7 +451,7 @@ src_install() {
 	DESTDIR="${D}" ./mach install
 
 	# Install language packs
-	mozlinguas_src_install
+	MOZ_INSTALL_L10N_XPIFILE="1" mozlinguas_src_install
 
 	local size sizes icon_path icon name
 	if use bindist; then
