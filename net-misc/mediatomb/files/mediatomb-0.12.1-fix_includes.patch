@@ -1,0 +1,13 @@
+diff --git a/tombupnp/upnp/inc/upnp.h b/tombupnp/upnp/inc/upnp.h
+index a6b50c7..2c0cc99 100644
+--- a/tombupnp/upnp/inc/upnp.h
++++ b/tombupnp/upnp/inc/upnp.h
+@@ -58,7 +58,7 @@
+ //@{
+ 
+ #include <stdio.h>
+-#if defined(__FreeBSD__) || defined(__APPLE__) || defined(__NetBSD__)
++#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__) || defined(__NetBSD__)
+ #include <time.h>
+ #include <sys/types.h>
+ #endif

@@ -1,0 +1,13 @@
+diff --git a/tombupnp/threadutil/src/ThreadPool.c b/tombupnp/threadutil/src/ThreadPool.c
+index 17794c1..5202ccb 100644
+--- a/tombupnp/threadutil/src/ThreadPool.c
++++ b/tombupnp/threadutil/src/ThreadPool.c
+@@ -375,7 +375,7 @@ tp->stats.totalJobsLQ++; tp->stats.totalTimeLQ += diff; break; default:
+ #elif defined(HAVE_ARC4RANDOM)
+     srand( arc4random() );
+ #else
+-    srand( ( unsigned int )(t.tv_usec/1000) + ithread_get_current_thread_id(  ) );
++    srand( ( unsigned int )(t.tv_usec/1000) + (unsigned int)ithread_get_current_thread_id(  ) );
+ #endif
+     }
+ 
