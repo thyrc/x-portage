@@ -1,0 +1,14 @@
+diff --git a/src/modules/evas/engines/gl_drm/evas_engine.c b/src/modules/evas/engines/gl_drm/evas_engine.c
+index 4f168df7f0..81a01c7c1c 100644
+--- a/src/modules/evas/engines/gl_drm/evas_engine.c
++++ b/src/modules/evas/engines/gl_drm/evas_engine.c
+@@ -3,7 +3,9 @@
+ #include "../gl_common/evas_gl_define.h"
+ #include "../software_generic/evas_native_common.h"
+ 
++# ifdef HAVE_WAYLAND
+ #include <wayland-client.h>
++#endif
+ 
+ #ifdef HAVE_DLSYM
+ # include <dlfcn.h>      /* dlopen,dlclose,etc */
