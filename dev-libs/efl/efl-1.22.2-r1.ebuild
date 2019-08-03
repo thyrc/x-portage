@@ -7,7 +7,7 @@ inherit git-r3 meson xdg-utils
 
 EGIT_REPO_URI="https://git.enlightenment.org/core/${PN}.git"
 EGIT_BRANCH="efl-1.22"
-EGIT_COMMIT="0af9c345cc74e4658a692e43feb2bb8d3a68f092"
+EGIT_COMMIT="0e7a833fc3077c782c0a8a4e264790ed1aea5ee1"
 
 DESCRIPTION="Enlightenment Foundation Libraries all-in-one package"
 HOMEPAGE="https://www.enlightenment.org"
@@ -151,7 +151,9 @@ src_configure() {
 		-Dlibmount=true
 		-Dxinput22=true
 
+		-Dbuild-tests=false
 		-Dcocoa=false
+		-Deina-magic-debug=false
 		-Dgstreamer=false
 		-Dpixman=false
 		-Dxgesture=false
@@ -168,7 +170,6 @@ src_configure() {
 		$(meson_use hyphen)
 		$(meson_use nls)
 		$(meson_use physics)
-		$(meson_use postscript spectre)
 		$(meson_use pulseaudio)
 		$(meson_use sdl)
 		$(meson_use sound audio)
