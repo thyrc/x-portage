@@ -1,16 +1,16 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 
 MY_PN="App-ClusterSSH"
 MODULE_AUTHOR="DUNCS"
-MODULE_VERSION="v4.13.2"
+MODULE_VERSION="4.16"
 
-inherit eutils perl-module
+inherit perl-module
 
 DESCRIPTION="Concurrent Multi-Server Terminal Access"
-HOMEPAGE="http://clusterssh.sourceforge.net"
+HOMEPAGE="https://github.com/duncs/clusterssh"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -32,13 +32,13 @@ RDEPEND="
 	dev-perl/XML-Simple
 	x11-apps/xlsfonts
 	|| ( x11-terms/xterm
-		 x11-terms/xvt
-		 x11-terms/rxvt-unicode
+		x11-terms/xvt
+		x11-terms/rxvt-unicode
 	)"
 DEPEND="
 	${RDEPEND}
 	dev-perl/File-Which
 	dev-perl/Module-Build
-	test? ( dev-perl/Test-Differences )"
+	dev-perl/Test-Differences"
 
 SRC_TEST="do parallel"
