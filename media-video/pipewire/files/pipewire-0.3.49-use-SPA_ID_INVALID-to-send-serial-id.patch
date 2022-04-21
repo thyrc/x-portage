@@ -1,0 +1,27 @@
+diff --git a/src/modules/module-protocol-native/protocol-native.c b/src/modules/module-protocol-native/protocol-native.c
+index f368c4baac6be43f7145bb3010d1a47ac474c088..2213be4106a50523f3d1a6eda801da9b637027be 100644
+--- a/src/modules/module-protocol-native/protocol-native.c
++++ b/src/modules/module-protocol-native/protocol-native.c
+@@ -347,6 +347,9 @@ static int core_event_demarshal_done(void *object, const struct pw_protocol_nati
+ 				SPA_POD_Int(&seq)) < 0)
+ 		return -EINVAL;
+ 
++	if (id == SPA_ID_INVALID)
++		return 0;
++
+ 	return pw_proxy_notify(proxy, struct pw_core_events, done, 0, id, seq);
+ }
+ 
+diff --git a/src/pipewire/global.c b/src/pipewire/global.c
+index aa2a048ce98377dee245a8e99dff76668be45e98..d069ac8d81e33b4296cef38bc8fc940f1104aa68 100644
+--- a/src/pipewire/global.c
++++ b/src/pipewire/global.c
+@@ -177,7 +177,7 @@ int pw_global_register(struct pw_global *global)
+ 			pw_log_debug("impl-client %p: (no registry) global %d %08x serial:%"PRIu64
+ 					" generation:%"PRIu64, client, global->id, permissions, global->serial,
+ 					global->generation);
+-			pw_core_resource_done(client->core_resource, global->id, 0);
++			pw_core_resource_done(client->core_resource, SPA_ID_INVALID, 0);
+ 		}
+ 	}
+ 
