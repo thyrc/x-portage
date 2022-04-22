@@ -124,6 +124,7 @@ DOCS=( {README,INSTALL}.md NEWS )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.3.25-enable-failed-mlock-warning.patch
+	"${FILESDIR}"/${PN}-0.3.49-x86-cast.patch
 	"${FILESDIR}"/${P}-use-SPA_ID_INVALID-to-send-serial-id.patch
 )
 
