@@ -2,10 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=8
 
-MODULE_AUTHOR=SALVA
-MODULE_VERSION=0.14
+DIST_AUTHOR=SALVA
+DIST_VERSION=0.14
 inherit perl-module
 
 DESCRIPTION="Run SSH jobs in parallel"
@@ -17,5 +17,3 @@ RDEPEND="
 	dev-perl/Net-OpenSSH
 "
 DEPEND="${RDEPEND}"
-
-#SRC_TEST=do
