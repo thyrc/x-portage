@@ -1,0 +1,12 @@
+diff --git a/modules/demux/adaptive/playlist/BasePlaylist.hpp b/modules/demux/adaptive/playlist/BasePlaylist.hpp
+index 7052915d92..89a7afaf52 100644
+--- a/modules/demux/adaptive/playlist/BasePlaylist.hpp
++++ b/modules/demux/adaptive/playlist/BasePlaylist.hpp
+@@ -21,6 +21,7 @@
+ #ifndef BASEPLAYLIST_HPP_
+ #define BASEPLAYLIST_HPP_
+ 
++#include <ctime>
+ #include <vector>
+ #include <string>
+ 
